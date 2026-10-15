@@ -1,0 +1,13 @@
+<h1>ログイン</h1>
+
+<%= form_with url: top_login_path, data: { turbo: false } do |form| %>
+  <div>
+    <%= form.label :uid, "ユーザーID" %>
+    <%= form.text_field :uid %>
+  </div>
+  <div>
+    <%= form.label :pass, "パスワード" %>
+    <%= form.password_field :pass %>
+  </div>
+  <%= form.submit "ログイン" %>
+<% end %>
