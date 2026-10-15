@@ -11,6 +11,8 @@ class TopControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "valid credentials log in and show success" do
+    User.create!(uid: "kindai", pass: "sanriko")
+
     post top_login_path, params: { uid: "kindai", pass: "sanriko" }
 
     assert_redirected_to top_main_path
@@ -19,11 +21,27 @@ class TopControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "invalid credentials show an error below the button on the login form" do
-    post top_login_path, params: { uid: "wrong", pass: "wrong" }
+    User.create!(uid: "kindai", pass: "different")
+
+    post top_login_path, params: { uid: "kindai", pass: "sanriko" }
 
     assert_response :success
     assert_select "form input[type=submit] ~ p[role=alert]", "ログイン失敗"
     assert_select "input[name=uid]"
     assert_select "input[name=pass][type=password]"
+  end
+
+  test "logout clears the login session" do
+    User.create!(uid: "kindai", pass: "sanriko")
+    post top_login_path, params: { uid: "kindai", pass: "sanriko" }
+    follow_redirect!
+
+    assert_select "a[href=?]", top_logout_path, "ログアウト"
+
+    get top_logout_path
+
+    assert_redirected_to top_main_path
+    follow_redirect!
+    assert_select "form[action=?]", top_login_path
   end
 end
