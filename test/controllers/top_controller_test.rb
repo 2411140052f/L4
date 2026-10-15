@@ -11,7 +11,7 @@ class TopControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "valid credentials log in and show success" do
-    User.create!(uid: "kindai", pass: "sanriko")
+    User.create!(uid: "kindai", pass: BCrypt::Password.create("sanriko").to_s)
 
     post top_login_path, params: { uid: "kindai", pass: "sanriko" }
 
@@ -21,7 +21,7 @@ class TopControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "invalid credentials show an error below the button on the login form" do
-    User.create!(uid: "kindai", pass: "different")
+    User.create!(uid: "kindai", pass: BCrypt::Password.create("different").to_s)
 
     post top_login_path, params: { uid: "kindai", pass: "sanriko" }
 
@@ -31,8 +31,15 @@ class TopControllerTest < ActionDispatch::IntegrationTest
     assert_select "input[name=pass][type=password]"
   end
 
+  test "unknown user cannot log in" do
+    post top_login_path, params: { uid: "unknown", pass: "sanriko" }
+
+    assert_response :success
+    assert_select "form input[type=submit] ~ p[role=alert]", "ログイン失敗"
+  end
+
   test "logout clears the login session" do
-    User.create!(uid: "kindai", pass: "sanriko")
+    User.create!(uid: "kindai", pass: BCrypt::Password.create("sanriko").to_s)
     post top_login_path, params: { uid: "kindai", pass: "sanriko" }
     follow_redirect!
 
