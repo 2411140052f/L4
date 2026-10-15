@@ -10,4 +10,7 @@
     <%= form.password_field :pass %>
   </div>
   <%= form.submit "ログイン" %>
+  <% if @login_error %>
+    <p role="alert"><%= @login_error %></p>
+  <% end %>
 <% end %>
